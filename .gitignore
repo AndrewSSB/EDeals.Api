@@ -396,5 +396,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-/src/EDeals.Core/appsettings.Local.json
 /src/EDeals.Api/appsettings.Local.json
