@@ -1,6 +1,7 @@
 ﻿using EDeals.Api.Settings;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Options;
+using System.Text;
 
 namespace EDeals.Api.GatewayServices
 {
@@ -44,7 +45,7 @@ namespace EDeals.Api.GatewayServices
             {
                 context.Response.Headers[header.Key] = header.Value.ToArray();
             }
-            
+
             foreach (var header in responseMessage.Content.Headers)
             {
                 context.Response.Headers[header.Key] = header.Value.ToArray();
@@ -66,7 +67,7 @@ namespace EDeals.Api.GatewayServices
             return requestMessage;
         }
 
-        private void CopyFromOriginalRequestContentAndHeaders(HttpContext context, HttpRequestMessage requestMessage)
+        private async void CopyFromOriginalRequestContentAndHeaders(HttpContext context, HttpRequestMessage requestMessage)
         {
             var requestMethod = context.Request.Method;
 
@@ -76,8 +77,11 @@ namespace EDeals.Api.GatewayServices
                 !HttpMethods.IsOptions(requestMethod) &&
                 !HttpMethods.IsTrace(requestMethod))
             {
-                var streamContent = new StreamContent(context.Request.Body);
-                requestMessage.Content = streamContent;
+                using var reader = new StreamReader(context.Request.Body, Encoding.UTF8);
+                var requestBody = await reader.ReadToEndAsync();
+
+                var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+                requestMessage.Content = content;
             }
 
             foreach (var header in context.Request.Headers)
@@ -96,12 +100,12 @@ namespace EDeals.Api.GatewayServices
             {
                 string when HttpMethods.IsDelete(method) => HttpMethod.Delete,
                 string when HttpMethods.IsGet(method) => HttpMethod.Get,
-                string when HttpMethods.IsHead(method) => HttpMethod.Get,
-                string when HttpMethods.IsOptions(method) => HttpMethod.Get,
-                string when HttpMethods.IsPost(method) => HttpMethod.Get,
-                string when HttpMethods.IsPut(method) => HttpMethod.Get,
-                string when HttpMethods.IsTrace(method) => HttpMethod.Get,
-                string when HttpMethods.IsPatch(method) => HttpMethod.Get,
+                string when HttpMethods.IsHead(method) => HttpMethod.Head,
+                string when HttpMethods.IsOptions(method) => HttpMethod.Options,
+                string when HttpMethods.IsPost(method) => HttpMethod.Post,
+                string when HttpMethods.IsPut(method) => HttpMethod.Put,
+                string when HttpMethods.IsTrace(method) => HttpMethod.Trace,
+                string when HttpMethods.IsPatch(method) => HttpMethod.Patch,
                 _ => new HttpMethod(method)
             };
 

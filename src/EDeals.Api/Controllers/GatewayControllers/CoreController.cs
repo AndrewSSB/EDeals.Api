@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EDeals.Api.Attributes;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EDeals.Api.Controllers.GatewayControllers
 {
@@ -9,5 +11,8 @@ namespace EDeals.Api.Controllers.GatewayControllers
     // and set the desired authorization attributes (e.g. [Authorize] or [Authorize("policy")] or [AllowAnonymous] etc.)
     public class CoreController : ControllerBase
     {
+        [AllowAnonymous]
+        [HttpPost("api/authentication/login")]
+        public void Login() { }
     }
 }

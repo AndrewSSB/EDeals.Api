@@ -1,11 +1,12 @@
 ﻿using EDeals.Api.GatewayServices;
 using EDeals.Api.Middlewares;
+using EDeals.Api.RedisServices;
 using EDeals.Api.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
-namespace EDeals.Api.Extensions
+namespace EDeals.Api
 {
     public static class DependencyInjection
     {
@@ -21,6 +22,7 @@ namespace EDeals.Api.Extensions
         {
             services.AddHttpClient();
             services.AddSingleton<IGatewayService, GatewayService>();
+            services.AddSingleton<IJWTRevocationService, JWTRevocationService>();
 
             return services;
         }

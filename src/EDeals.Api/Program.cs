@@ -1,3 +1,4 @@
+using EDeals.Api;
 using EDeals.Api.Extensions;
 using EDeals.Api.Settings;
 using Serilog;
@@ -28,6 +29,15 @@ try
     builder.Services.ConfigureRolesAndPolicies();
 
     builder.Services.AddServices();
+
+    // Add redis
+    // TODO: decomment to add redis
+    //builder.Services.AddStackExchangeRedisCache(redisOptions =>
+    //{
+    //    var conection = builder.Configuration.GetSection(nameof(RedisSettings)).Get<RedisSettings>();
+
+    //    redisOptions.Configuration = conection!.RedisConnection;
+    //});
 
     // Add Serilog
     builder.Host.UseSerilog((context, configuration) =>
