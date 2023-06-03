@@ -22,7 +22,9 @@ namespace EDeals.Api
         {
             services.AddHttpClient();
             services.AddSingleton<IGatewayService, GatewayService>();
-            services.AddSingleton<IJWTRevocationService, JWTRevocationService>();
+
+            // TODO: Remove comment to add redis
+            //services.AddSingleton<IJWTRevocationService, JWTRevocationService>();
 
             return services;
         }
@@ -49,8 +51,10 @@ namespace EDeals.Api
                    options.RequireHttpsMetadata = false;
                    options.TokenValidationParameters = new TokenValidationParameters()
                    {
-                       ValidateIssuer = false,
-                       ValidateAudience = false,
+                       ValidateIssuer = true,
+                       ValidateAudience = true,
+                       ValidIssuer = settings.ValidIssuer,
+                       ValidAudience = settings.ValidAudience,
                        IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(settings.Secret))
                    };
                });
