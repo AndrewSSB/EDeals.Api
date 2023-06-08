@@ -6,6 +6,7 @@
         {
             builder.Configuration.AddJsonFile("appsettings.json", false, true);
             builder.Configuration.AddJsonFile("appsettings.Local.json", false, true);
+            builder.Configuration.AddJsonFile($"appsettings.{builder.Environment}.json", false, true);
             builder.Configuration.AddEnvironmentVariables();
         }
     }
