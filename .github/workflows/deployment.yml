@@ -53,7 +53,7 @@ jobs:
           key: ${{env.SSK_KEY}}
           script: |
             echo "${{ env.DOCKER_ENV_FILE }}" > ./docker.env
-            docker system prune --all --force --volumes
+            docker image prune -a -f
             docker load -i ${{ env.APP_NAME }}.tar
             docker rm -f ${{env.APP_NAME}}
             docker run -d -p ${{env.OUT_PORT}}:${{env.IN_PORT}} --network edeals --name ${{env.APP_NAME}} --env-file ./docker.env ${{env.APP_NAME}}:${{env.VERSION_NUMBER}}
