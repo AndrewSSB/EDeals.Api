@@ -11,7 +11,7 @@ COPY . .
 RUN dotnet restore "src/EDeals.Api"
 RUN dotnet build "src/EDeals.Api" -c Release --no-restore
 
-RUN dotnet publish "EDeals.Api.csproj" -c Release --no-build --output /app
+RUN dotnet publish "src/EDeals.Api" -c Release --no-build --output /app
 
 FROM base AS final
 WORKDIR /app
