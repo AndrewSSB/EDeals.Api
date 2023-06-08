@@ -2,6 +2,7 @@
 {
     public enum EDealsMicroserviceTypes
     {
-        Core = 0
+        Core = 0,
+        Catalog = 1,
     }
 }

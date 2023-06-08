@@ -124,6 +124,13 @@ namespace EDeals.Api.GatewayServices
                         uriBuilder.Port = parsedPort;
                         break;
                     }
+                case EDealsMicroserviceTypes.Catalog:
+                    {
+                        uriBuilder.Host = _restServiceSettings.CatalogApiDomain.Split(':').FirstOrDefault();
+                        _ = int.TryParse(_restServiceSettings.CatalogApiDomain.Split(':').LastOrDefault(), out int parsedPort);
+                        uriBuilder.Port = parsedPort;
+                        break;
+                    }
                 default:
                     break;
             }
