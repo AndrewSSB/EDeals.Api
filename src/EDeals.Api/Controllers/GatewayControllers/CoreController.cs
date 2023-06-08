@@ -14,5 +14,9 @@ namespace EDeals.Api.Controllers.GatewayControllers
         [AllowAnonymous]
         [HttpPost("api/authentication/login")]
         public void Login() { }
+        
+        [AllowAnonymous]
+        [HttpPost("api/authentication/register")]
+        public void Register() { }
     }
 }
