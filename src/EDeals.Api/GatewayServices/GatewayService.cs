@@ -68,7 +68,7 @@ namespace EDeals.Api.GatewayServices
             return requestMessage;
         }
 
-        private void CopyFromOriginalRequestContentAndHeaders(HttpContext context, HttpRequestMessage requestMessage)
+        private async void CopyFromOriginalRequestContentAndHeaders(HttpContext context, HttpRequestMessage requestMessage)
         {
             try
             {
@@ -100,8 +100,11 @@ namespace EDeals.Api.GatewayServices
                     }
                     else
                     {
-                        var streamContent = new StreamContent(context.Request.Body);
-                        requestMessage.Content = streamContent;
+                        using var reader = new StreamReader(context.Request.Body, Encoding.UTF8);
+                        var requestBody = await reader.ReadToEndAsync();
+
+                        var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+                        requestMessage.Content = content;
                     }                  
 
                 }
