@@ -1,5 +1,6 @@
 using EDeals.Api;
 using EDeals.Api.Extensions;
+using EDeals.Api.Middlewares;
 using EDeals.Api.Settings;
 using Serilog;
 
@@ -51,6 +52,8 @@ try
         app.UseSwagger();
         app.UseSwaggerUI();
     //}
+
+    app.UseMiddleware<ExceptionMiddleware>();
 
     app.AddMiddlewares();
 
