@@ -1,6 +1,7 @@
 ﻿using EDeals.Api.Settings;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Options;
+using System.Net.Http;
 using System.Text;
 
 namespace EDeals.Api.GatewayServices
@@ -67,31 +68,56 @@ namespace EDeals.Api.GatewayServices
             return requestMessage;
         }
 
-        private async void CopyFromOriginalRequestContentAndHeaders(HttpContext context, HttpRequestMessage requestMessage)
+        private void CopyFromOriginalRequestContentAndHeaders(HttpContext context, HttpRequestMessage requestMessage)
         {
-            var requestMethod = context.Request.Method;
-
-            if (!HttpMethods.IsGet(requestMethod) &&
-                !HttpMethods.IsHead(requestMethod) &&
-                !HttpMethods.IsDelete(requestMethod) &&
-                !HttpMethods.IsOptions(requestMethod) &&
-                !HttpMethods.IsTrace(requestMethod))
+            try
             {
-                using var reader = new StreamReader(context.Request.Body, Encoding.UTF8);
-                var requestBody = await reader.ReadToEndAsync();
+                var requestMethod = context.Request.Method;
+                var contentType = context.Request.ContentType;
 
-                var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
-                requestMessage.Content = content;
-            }
-
-            foreach (var header in context.Request.Headers)
-            {
-                var success = requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
-
-                if (!success)
+                if (!HttpMethods.IsGet(requestMethod) &&
+                    !HttpMethods.IsHead(requestMethod) &&
+                    !HttpMethods.IsDelete(requestMethod) &&
+                    !HttpMethods.IsTrace(requestMethod))
                 {
-                    requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
+                    if (!string.IsNullOrEmpty(contentType) && contentType.StartsWith("multipart/form-data"))
+                    {
+                        var multiPartContent = new MultipartFormDataContent();
+
+                        foreach (var file in context.Request.Form.Files)
+                        {
+                            var fileStreamContent = new StreamContent(file.OpenReadStream());
+                            multiPartContent.Add(fileStreamContent, file.Name, file.FileName);
+                        }
+
+                        foreach (var field in context.Request.Form)
+                        {
+                            multiPartContent.Add(new StringContent(field.Value!), field.Key);
+                        }
+
+
+                        requestMessage.Content = multiPartContent;
+                    }
+                    else
+                    {
+                        var streamContent = new StreamContent(context.Request.Body);
+                        requestMessage.Content = streamContent;
+                    }                  
+
                 }
+
+                foreach (var header in context.Request.Headers)
+                {
+                    var success = requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
+
+                    if (!success)
+                    {
+                        requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
+                    }
+                }
+            } catch(Exception ex)
+            {
+                _logger.LogError("Something went wrong: {message}", ex.Message);
             }
         }
 
