@@ -53,6 +53,12 @@ try
         app.UseSwaggerUI();
     //}
 
+    app.UseCors(corsOpt => {
+        corsOpt.AllowAnyOrigin()
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
+
     app.UseMiddleware<ExceptionMiddleware>();
 
     app.AddMiddlewares();
