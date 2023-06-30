@@ -82,5 +82,17 @@ namespace EDeals.Api.Controllers.GatewayControllers
         [AllowAnonymous]
         [HttpGet("api/seller/{id}")]
         public void GetSeller() { }
+        
+        [AllowAnonymous]
+        [HttpGet("api/paymentcontroll")]
+        public void CreatePaymentIntent() { }
+        
+        [AllowAnonymous]
+        [HttpGet("api/order/draft")]
+        public void CreateDraftOrder() { }
+        
+        [AllowAnonymous]
+        [HttpGet("api/order/{id}")]
+        public void CreateOrder() { }
     }
 }
