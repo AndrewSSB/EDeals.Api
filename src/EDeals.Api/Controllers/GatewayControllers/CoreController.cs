@@ -20,7 +20,7 @@ namespace EDeals.Api.Controllers.GatewayControllers
         public void Register() { }
         
         [AllowAnonymous]
-        [HttpPost("api/authentication/confirm-email/{token}")]
+        [HttpPost("api/authentication/confirm-email")]
         public void VerifyEmail() { }
     }
 }
