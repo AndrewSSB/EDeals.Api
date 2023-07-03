@@ -24,7 +24,7 @@ namespace EDeals.Api
             services.AddSingleton<IGatewayService, GatewayService>();
 
             // TODO: Remove comment to add redis
-            //services.AddSingleton<IJWTRevocationService, JWTRevocationService>();
+            services.AddSingleton<IJWTRevocationService, JWTRevocationService>();
 
             return services;
         }

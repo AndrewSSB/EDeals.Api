@@ -14,13 +14,13 @@ namespace EDeals.Api.Middlewares
         private readonly HashSet<string> _availableMicroservices;
 
         // TODO: remove comment to add redis
-        //private readonly IJWTRevocationService _jwtRevocationService;
+        private readonly IJWTRevocationService _jwtRevocationService;
         
-        public GatewayMiddleware(RequestDelegate next)//, IJWTRevocationService jwtRevocationService)
+        public GatewayMiddleware(RequestDelegate next, IJWTRevocationService jwtRevocationService)
         {
             _next = next;
             _availableMicroservices = Enum.GetNames<EDealsMicroserviceTypes>().Select(x => x.ToLower()).ToHashSet();
-            //_jwtRevocationService = jwtRevocationService;
+            _jwtRevocationService = jwtRevocationService;
         }
 
         public async Task InvokeAsync(HttpContext context, 
@@ -87,7 +87,7 @@ namespace EDeals.Api.Middlewares
             logger.LogInformation("{protocol} {method} {path} responded with {code}", context.Request.Protocol.Split('/').FirstOrDefault(), context.Request.Method, context.Request.Path.Value, context.Response.StatusCode);
 
             // TODO: Enable this
-            //await RevokeTokenIfNeeded(context.Request.Method, context.Request.Path, context.Request.Headers.Authorization);
+            await RevokeTokenIfNeeded(context.Request.Method, context.Request.Path, context.Request.Headers.Authorization);
 
             return;
         }
@@ -104,11 +104,11 @@ namespace EDeals.Api.Middlewares
             // Check for blacklisted tokens
             var token = context.Request.Headers.Authorization;
             // TODO: Remove comment to add redis
-            //if (await _jwtRevocationService.IsTokenRevoked(token))
-            //{
-            //    await context.ChallengeAsync();
-            //    return false;
-            //}
+            if (await _jwtRevocationService.IsTokenRevoked(token))
+            {
+                await context.ChallengeAsync();
+                return false;
+            }
 
             // Authorize user with a default policy
             var authorizationResult = await authorizationService.AuthorizeAsync(context.User, "User");
@@ -136,11 +136,11 @@ namespace EDeals.Api.Middlewares
             // Check for blacklisted tokens
             var token = context.Request.Headers.Authorization;
             // TODO: Remove comment to add redis
-            //if (await _jwtRevocationService.IsTokenRevoked(token))
-            //{
-            //    await context.ChallengeAsync();
-            //    return false;
-            //}
+            if (await _jwtRevocationService.IsTokenRevoked(token))
+            {
+                await context.ChallengeAsync();
+                return false;
+            }
 
             // Enforce authentication
             if (authorizeAttributes.Count > 0 && (!context.User.Identity?.IsAuthenticated ?? true))
@@ -183,16 +183,16 @@ namespace EDeals.Api.Middlewares
 
         private async Task RevokeTokenIfNeeded(string method, string path, string? token = null)
         {
-            // TODO: Remove comment to add redis
-            //if (HttpMethods.IsDelete(method) && path.Contains("/api/user/account"))
-            //{
-            //    await _jwtRevocationService.RevokeToken(token);
-            //}
+        //TODO: Remove comment to add redis
+            if (HttpMethods.IsDelete(method) && path.Contains("/api/user/account"))
+            {
+                await _jwtRevocationService.RevokeToken(token);
+            }
 
-            //if (HttpMethods.IsPost(method) && path.Contains("/api/authentication/logout"))
-            //{
-            //    await _jwtRevocationService.RevokeToken(token);
-            //}
+            if (HttpMethods.IsPost(method) && path.Contains("/api/authentication/logout"))
+            {
+                await _jwtRevocationService.RevokeToken(token);
+            }
         }
 
         private bool IsUserInValidRole(string? roles, HttpContext context)
